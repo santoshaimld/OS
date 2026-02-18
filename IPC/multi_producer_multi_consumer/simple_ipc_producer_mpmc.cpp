@@ -40,12 +40,12 @@ class SimpleIPC{
 		}
 
 		void wait(){
-			while(!tProducer.empty()){
+			for (auto &t: tProducer){
 				if (tProducer.back().joinable()){
-					tProducer.back().join();
-					tProducer.pop_back();
+					t.join();
 				}
 			}
+			tProducer.clear();
 		}
 
 
@@ -53,7 +53,6 @@ class SimpleIPC{
 		int fp;
 		int wr_len=0;
 		int nProdCount=0;
-		int nProdCountSave=0;
 		int nMsgCount=0;
 		std::atomic<int> nTotalMsg{0};
 

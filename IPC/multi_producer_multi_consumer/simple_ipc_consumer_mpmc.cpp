@@ -34,9 +34,11 @@ class SimpleIPC{
 						nPerConsumerMsgCount--;
 						nTotalMsgs.fetch_add(1, std::memory_order_relaxed);
 						Log("Consumer"<<"-"<<id<<": " << buf << " left: " << nPerConsumerMsgCount << " Total: " << nTotalMsgs.load()); 
+						buf[rd_len] = '\0';
+						rd_len = 0;
+					}else{
+						Log(" read failed: " << rd_len);
 					}
-					buf[rd_len] = '\0';
-					rd_len = 0;
 				}
 			}catch(std::exception &ex){
 				Log(" exp: " << std::string(ex.what()));
@@ -45,12 +47,12 @@ class SimpleIPC{
 		}
 
 		void wait(){
-			while(!tConsumer.empty()){
-				if (tConsumer.back().joinable()){
-					tConsumer.back().join();
-					tConsumer.pop_back();
-				}
-			}
+                        for (auto &t: tConsumer){
+                                if (t.joinable()){
+                                        t.join();
+                                }   
+                        }   
+                        tConsumer.clear();
 		}
 
 
